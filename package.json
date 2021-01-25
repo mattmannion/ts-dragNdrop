@@ -1,0 +1,21 @@
+{
+  "name": "typescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/html/index.html",
+  "scripts": {
+    "rf:d": "rimraf dist/*",
+    "rf:c": "rimraf .cache/*",
+    "parcel:d": "parcel src/html/index.html",
+    "parcel:p": "parcel build src/html/index.html --no-cache",
+    "redirects": "cp src/html/_redirects dist/_redirects",
+    "start": "run-s rf:d parcel:d",
+    "build": "run-s rf:d rf:c parcel:p redirects"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  }
+}
