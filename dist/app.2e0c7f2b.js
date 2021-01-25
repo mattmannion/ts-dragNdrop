@@ -293,19 +293,18 @@ var Component = /*#__PURE__*/function () {
   return Component;
 }();
 
-var ProjectList = /*#__PURE__*/function (_Component) {
-  _inherits(ProjectList, _Component);
+var ProjectItem = /*#__PURE__*/function (_Component) {
+  _inherits(ProjectItem, _Component);
 
-  var _super2 = _createSuper(ProjectList);
+  var _super2 = _createSuper(ProjectItem);
 
-  function ProjectList(type) {
+  function ProjectItem(hostId, project) {
     var _this2;
 
-    _classCallCheck(this, ProjectList);
+    _classCallCheck(this, ProjectItem);
 
-    _this2 = _super2.call(this, 'project-list', 'app', false, "".concat(type, "-projects"));
-    _this2.type = type;
-    _this2.assingedProjects = [];
+    _this2 = _super2.call(this, 'single-project', hostId, false, project.id);
+    _this2.project = project;
 
     _this2.configure();
 
@@ -314,18 +313,59 @@ var ProjectList = /*#__PURE__*/function (_Component) {
     return _this2;
   }
 
+  _createClass(ProjectItem, [{
+    key: "configure",
+    value: function configure() {}
+  }, {
+    key: "renderContent",
+    value: function renderContent() {
+      this.element.querySelector('h2').textContent = this.project.title;
+      this.element.querySelector('h3').textContent = this.persons + ' assigned';
+      this.element.querySelector('p').textContent = this.project.description;
+    }
+  }, {
+    key: "persons",
+    get: function get() {
+      if (this.project.people === 1) return '1 person';else return "".concat(this.project.people, " persons");
+    }
+  }]);
+
+  return ProjectItem;
+}(Component);
+
+var ProjectList = /*#__PURE__*/function (_Component2) {
+  _inherits(ProjectList, _Component2);
+
+  var _super3 = _createSuper(ProjectList);
+
+  function ProjectList(type) {
+    var _this3;
+
+    _classCallCheck(this, ProjectList);
+
+    _this3 = _super3.call(this, 'project-list', 'app', false, "".concat(type, "-projects"));
+    _this3.type = type;
+    _this3.assingedProjects = [];
+
+    _this3.configure();
+
+    _this3.renderContent();
+
+    return _this3;
+  }
+
   _createClass(ProjectList, [{
     key: "configure",
     value: function configure() {
-      var _this3 = this;
+      var _this4 = this;
 
       projectState.addListener(function (projects) {
         var relevantProjects = projects.filter(function (prj) {
-          if (_this3.type === 'active') return prj.status === ProjectStatus.Active;else return prj.status === ProjectStatus.Finished;
+          if (_this4.type === 'active') return prj.status === ProjectStatus.Active;else return prj.status === ProjectStatus.Finished;
         });
-        _this3.assingedProjects = relevantProjects;
+        _this4.assingedProjects = relevantProjects;
 
-        _this3.renderProjects();
+        _this4.renderProjects();
       });
     }
   }, {
@@ -347,9 +387,7 @@ var ProjectList = /*#__PURE__*/function (_Component) {
       try {
         for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
           var prjItem = _step2.value;
-          var listItem = document.createElement('li');
-          listItem.textContent = prjItem.title;
-          listEl.appendChild(listItem);
+          new ProjectItem(this.element.querySelector('ul').id, prjItem);
         }
       } catch (err) {
         _iterator2.e(err);
@@ -362,24 +400,24 @@ var ProjectList = /*#__PURE__*/function (_Component) {
   return ProjectList;
 }(Component);
 
-var ProjectInput = /*#__PURE__*/function (_Component2) {
-  _inherits(ProjectInput, _Component2);
+var ProjectInput = /*#__PURE__*/function (_Component3) {
+  _inherits(ProjectInput, _Component3);
 
-  var _super3 = _createSuper(ProjectInput);
+  var _super4 = _createSuper(ProjectInput);
 
   function ProjectInput() {
-    var _this4;
+    var _this5;
 
     _classCallCheck(this, ProjectInput);
 
-    _this4 = _super3.call(this, 'project-input', 'app', true, 'user-input');
-    _this4.titleInputElement = _this4.element.querySelector('#title');
-    _this4.descriptionInputElement = _this4.element.querySelector('#description');
-    _this4.peopleInputElement = _this4.element.querySelector('#people');
+    _this5 = _super4.call(this, 'project-input', 'app', true, 'user-input');
+    _this5.titleInputElement = _this5.element.querySelector('#title');
+    _this5.descriptionInputElement = _this5.element.querySelector('#description');
+    _this5.peopleInputElement = _this5.element.querySelector('#people');
 
-    _this4.configure();
+    _this5.configure();
 
-    return _this4;
+    return _this5;
   }
 
   _createClass(ProjectInput, [{
