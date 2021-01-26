@@ -220,14 +220,30 @@ var ProjectState = /*#__PURE__*/function (_State) {
     value: function addProject(title, description, numOfPeople) {
       var newProject = new Project(Math.random().toString(), title, description, numOfPeople, ProjectStatus.Active);
       this.projects.push(newProject);
+      this.updateListeners();
+    }
+  }, {
+    key: "moveProject",
+    value: function moveProject(projectId, newStatus) {
+      var project = this.projects.find(function (prj) {
+        return prj.id === projectId;
+      });
 
+      if (project && project.status !== newStatus) {
+        project.status = newStatus;
+        this.updateListeners();
+      }
+    }
+  }, {
+    key: "updateListeners",
+    value: function updateListeners() {
       var _iterator = _createForOfIteratorHelper(this.listeners),
           _step;
 
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var listerFn = _step.value;
-          listerFn(this.projects.slice());
+          var listenerFn = _step.value;
+          listenerFn(this.projects.slice());
         }
       } catch (err) {
         _iterator.e(err);
@@ -314,8 +330,22 @@ var ProjectItem = /*#__PURE__*/function (_Component) {
   }
 
   _createClass(ProjectItem, [{
+    key: "dragStartHandler",
+    value: function dragStartHandler(event) {
+      event.dataTransfer.setData('text/plain', this.project.id);
+      event.dataTransfer.effectAllowed = 'move';
+    }
+  }, {
+    key: "dragEndHandler",
+    value: function dragEndHandler(_) {
+      console.log('DragEnd');
+    }
+  }, {
     key: "configure",
-    value: function configure() {}
+    value: function configure() {
+      this.element.addEventListener('dragstart', this.dragStartHandler);
+      this.element.addEventListener('dragend', this.dragEndHandler);
+    }
   }, {
     key: "renderContent",
     value: function renderContent() {
@@ -332,6 +362,10 @@ var ProjectItem = /*#__PURE__*/function (_Component) {
 
   return ProjectItem;
 }(Component);
+
+__decorate([autobind], ProjectItem.prototype, "dragStartHandler", null);
+
+__decorate([autobind], ProjectItem.prototype, "dragEndHandler", null);
 
 var ProjectList = /*#__PURE__*/function (_Component2) {
   _inherits(ProjectList, _Component2);
@@ -355,10 +389,34 @@ var ProjectList = /*#__PURE__*/function (_Component2) {
   }
 
   _createClass(ProjectList, [{
+    key: "dragOverHandler",
+    value: function dragOverHandler(event) {
+      if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+        event.preventDefault();
+        var listEl = this.element.querySelector('ul');
+        listEl.classList.add('droppable');
+      }
+    }
+  }, {
+    key: "dropHandler",
+    value: function dropHandler(event) {
+      var prjId = event.dataTransfer.getData('text/plain');
+      projectState.moveProject(prjId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
+    }
+  }, {
+    key: "dragLeaveHandler",
+    value: function dragLeaveHandler(_) {
+      var listEl = this.element.querySelector('ul');
+      listEl.classList.remove('droppable');
+    }
+  }, {
     key: "configure",
     value: function configure() {
       var _this4 = this;
 
+      this.element.addEventListener('dragover', this.dragOverHandler);
+      this.element.addEventListener('dragleave', this.dragLeaveHandler);
+      this.element.addEventListener('drop', this.dropHandler);
       projectState.addListener(function (projects) {
         var relevantProjects = projects.filter(function (prj) {
           if (_this4.type === 'active') return prj.status === ProjectStatus.Active;else return prj.status === ProjectStatus.Finished;
@@ -399,6 +457,12 @@ var ProjectList = /*#__PURE__*/function (_Component2) {
 
   return ProjectList;
 }(Component);
+
+__decorate([autobind], ProjectList.prototype, "dragOverHandler", null);
+
+__decorate([autobind], ProjectList.prototype, "dropHandler", null);
+
+__decorate([autobind], ProjectList.prototype, "dragLeaveHandler", null);
 
 var ProjectInput = /*#__PURE__*/function (_Component3) {
   _inherits(ProjectInput, _Component3);
